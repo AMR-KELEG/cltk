@@ -337,11 +337,44 @@ ISO88596_TO_UNICODE = {"C1": "\u0621", # hamza-on-the-line
                         #"": "\u06ED"  # missing
                       }
 
+QALAM_TO_UNICODE = {"'": "\u0621", # hamza, ء
+                    "aa": "\u0627", # 'alef, ا
+                    "b": "\u0628", # baa', ب
+                    "t": "\u062A", # taa', ت
+                    "th": "\u062B", # thaa', ث
+                    "j": "\u062C", # jym, ج
+                    "H": "\u062D", # Haa', ح
+                    "kh": "\u062E", # khaa', خ
+                    "kh": "\u0643", # khaa', ك
+                    "d": "\u062F", # daal, د
+                    "dh": "\u0630", # dhaal, ذ
+                    "r": "\u0631", # raa', ر
+                    "z": "\u0632", # zayn, ز
+                    "s": "\u0633", # syn, س
+                    "sh": "\u0634", # shyn, ش
+                    "S": "\u0635", # Saad, ص
+                    "D": "\u0636", # Daad, ض
+                    "T": "\u0637", # Taa', ط
+                    "Z": "\u0638", # Zaa', ظ
+                    "`": "\u0639", # `ayn, ع
+                    "gh": "\u063A", # ghayn, غ
+                    "f": "\u0641", # faa', ف
+                    "q": "\u0642", # qaaf, ق
+                    "k": "\u0643", # kaaf, ك
+                    "l": "\u0644", # laam, ل
+                    "m": "\u0645", # mym, م
+                    "n": "\u0646", # nuwn, ن
+                    "h": "\u0647", # haa', ه
+                    "w": "\u0648", # waaw, و
+                    "y": "\u064A", # yaa', ي
+                    }
+
 ROMANIZATION_SYSTEMS_MAPPINGS = { "buckwalter": BUCKWALTER_TO_UNICODE,
                                    "iso233-2": ISO2332_TO_UNICODE,
                                    #"arabtex": ARABTEX_TO_UNICODE, todo: not ready
                                    "asmo449": ASMO449_TO_UNICODE,
                                    #"iso8859-6": ISO88596_TO_UNICODE, todo: not ready
+                                   "qalam": QALAM_TO_UNICODE
                                  }
 
 def available_transliterate_systems():
@@ -377,9 +410,27 @@ def transliterate(mode, string, ignore = '', reverse = False ):
         mapping = MAPPING
 
     result = ""
-    for char in string:
-        if char in mapping.keys() and char not in ignore:
-            result += mapping[char]
-        else:
-            result += char
+    if mode == "qalam":
+    	# TODO: REFACTOR THIS PART
+        # Check if bigrams has a mapping first then fallback to unigrams
+        i = 0
+        while i < len(string):
+            unigram = string[i]
+            bigram = string[i:i+2]
+            i += 1
+            if unigram in ignore:
+                continue
+            if bigram in mapping:
+                result += mapping[bigram]
+                i += 1
+            else:
+                result += mapping.get(unigram, unigram)
+
+    else:
+	    for char in string:
+	        if char in mapping.keys() and char not in ignore:
+	            result += mapping[char]
+	        else:
+	            result += char
+
     return result
